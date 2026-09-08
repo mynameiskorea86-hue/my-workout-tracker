@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12개월 몸 만들기 프로젝트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15171A;
+    --surface:#1D2024;
+    --surface-2:#262A30;
+    --border:#34393F;
+    --text:#EDEAE4;
+    --text-muted:#8B9099;
+    --accent:#C08A4E;
+    --accent-dim:#8A6539;
+    --accent-2:#B3402F;
+    --success:#7BA05B;
+    --star:#D9A441;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:40px;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:20px 16px 8px;}
+  h1.title{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:24px;
+    letter-spacing:0.3px;
+    margin:0 0 2px;
+  }
+  .subtitle{color:var(--text-muted);font-size:13px;margin:0 0 18px;}
+
+  .tabs{
+    display:flex;
+    border-bottom:1px solid var(--border);
+    margin-bottom:16px;
+  }
+  .tab-btn{
+    flex:1;
+    background:none;
+    border:none;
+    color:var(--text-muted);
+    font-family:'Oswald',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    padding:10px 4px 12px;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    transition:color .15s, border-color .15s;
+  }
+  .tab-btn.active{color:var(--text);border-bottom-color:var(--accent);}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* day selector */
+  .day-row{
+    display:flex;
+    gap:6px;
+    margin-bottom:16px;
+    overflow-x:auto;
+  }
+  .day-chip{
+    flex:1;
+    min-width:40px;
+    text-align:center;
+    padding:9px 0;
+    border-radius:3px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text-muted);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    position:relative;
+  }
+  .day-chip.today::after{
+    content:'';
+    position:absolute;
+    bottom:3px;left:50%;
+    transform:translateX(-50%);
+    width:3px;height:3px;
+    border-radius:50%;
+    background:var(--accent);
+  }
+  .day-chip.selected{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#1A1500;
+  }
+
+  .day-header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .day-header h2{
+    font-family:'Oswald',sans-serif;
+    font-size:19px;
+    margin:0;
+    font-weight:600;
+  }
+  .day-header .stars{color:var(--star);font-size:14px;letter-spacing:1px;}
+  .rest-note{
+    color:var(--text-muted);
+    font-size:14px;
+    line-height:1.6;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:16px;
+  }
+
+  .ex-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:14px 14px 12px;
+    margin-bottom:10px;
+  }
+  .ex-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .ex-name{font-size:15px;font-weight:600;}
+  .ex-target{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--accent);
+    background:rgba(192,138,78,0.12);
+    padding:2px 7px;
+    border-radius:3px;
+    white-space:nowrap;
+  }
+  .last-time{
+    font-size:12px;
+    color:var(--text-muted);
+    font-family:'IBM Plex Mono',monospace;
+    margin-bottom:8px;
+  }
+  .sets-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+  .set-row{display:flex;align-items:center;gap:8px;}
+  .set-idx{
+    width:18px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--text-muted);
+    text-align:center;
+  }
+  .set-row input{
+    flex:1;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:3px;
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    padding:8px 8px;
+    width:0;
+    text-align:center;
+  }
+  .set-row input:focus{outline:none;border-color:var(--accent);}
+  .set-row .x{color:var(--text-muted);font-size:12px;}
+  .ex-actions{display:flex;justify-content:space-between;align-items:center;}
+  .save-btn{
+    background:var(--accent);
+    border:none;
+    color:#1A1500;
+    font-weight:600;
+    font-size:13px;
+    padding:7px 14px;
+    border-radius:3px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .save-btn:active{opacity:0.8;}
+  .feedback{font-size:12px;color:var(--success);min-height:16px;}
+  .feedback.warn{color:var(--text-muted);}
+
+  /* roadmap */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .card h3{
+    font-family:'Oswald',sans-serif;
+    font-size:15px;
+    margin:0 0 10px;
+    font-weight:600;
+  }
+  .field-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .field-row label{font-size:13px;color:var(--text-muted);}
+  .field-row input{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:3px;
+    color:var(--text);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    padding:6px 8px;
+    width:130px;
+    text-align:right;
+  }
+  .progress-line{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:24px;
+    color:var(--accent);
+    margin:4px 0 2px;
+  }
+  .progress-bar-track{
+    height:5px;
+    background:var(--surface-2);
+    border-radius:3px;
+    overflow:hidden;
+    margin:10px 0 4px;
+  }
+  .progress-bar-fill{height:100%;background:var(--accent);}
+
+  .month-strip{display:flex;flex-direction:column;gap:8px;}
+  .month-item{
+    display:flex;
+    gap:12px;
+    padding:10px 12px;
+    border-radius:4px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+  }
+  .month-item.current{border-color:var(--accent);background:rgba(192,138,78,0.10);}
+  .month-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    color:var(--accent);
+    font-size:13px;
+    min-width:34px;
+  }
+  .month-desc{font-size:13px;line-height:1.5;color:var(--text);}
+  .month-desc .ph{color:var(--text-muted);font-size:12px;}
+
+  .volume-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .volume-table td{padding:6px 0;border-bottom:1px solid var(--border);}
+  .volume-table td:last-child{text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--accent);}
+  .volume-table tr:last-child td{border-bottom:none;}
+
+  .protein-result{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:28px;
+    color:var(--accent);
+    margin:10px 0 2px;
+  }
+  .protein-sub{color:var(--text-muted);font-size:13px;}
+  .note{font-size:13px;line-height:1.6;color:var(--text-muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="title">12개월 몸 만들기</h1>
+  <p class="subtitle">상체 V-테이퍼 중심 · 점진적 과부하 기록</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-view="workout">운동</button>
+    <button class="tab-btn" data-view="roadmap">로드맵</button>
+    <button class="tab-btn" data-view="nutrition">영양</button>
+  </div>
+
+  <!-- WORKOUT VIEW -->
+  <div class="view active" id="view-workout">
+    <div class="day-row" id="dayRow"></div>
+    <div class="day-header">
+      <h2 id="dayTitle"></h2>
+      <span class="stars" id="dayStars"></span>
+    </div>
+    <div id="dayContent"></div>
+  </div>
+
+  <!-- ROADMAP VIEW -->
+  <div class="view" id="view-roadmap">
+    <div class="card">
+      <h3>진행 상황</h3>
+      <div class="field-row">
+        <label>시작일</label>
+        <input type="date" id="startDateInput">
+      </div>
+      <div class="progress-line" id="progressLine">D+0</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="note" id="progressSub"></div>
+    </div>
+
+    <div class="card">
+      <h3>월별 로드맵</h3>
+      <div class="month-strip" id="monthStrip"></div>
+    </div>
+
+    <div class="card">
+      <h3>주간 목표 볼륨 (세트 수 기준)</h3>
+      <table class="volume-table">
+        <tr><td>가슴</td><td>10–14세트</td></tr>
+        <tr><td>등</td><td>14–18세트</td></tr>
+        <tr><td>어깨</td><td>12–16세트</td></tr>
+        <tr><td>팔 (이두/삼두 각각)</td><td>6–10세트</td></tr>
+        <tr><td>하체</td><td>12–16세트</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- NUTRITION VIEW -->
+  <div class="view" id="view-nutrition">
+    <div class="card">
+      <h3>체중 입력</h3>
+      <div class="field-row">
+        <label>현재 체중 (kg)</label>
+        <input type="number" id="bodyweightInput" step="0.1" placeholder="75">
+      </div>
+    </div>
+    <div class="card">
+      <h3>하루 단백질 목표</h3>
+      <div class="protein-result" id="proteinResult">–</div>
+      <div class="protein-sub">체중 × 1.6~2.0g/일 기준</div>
+    </div>
+    <div class="card">
+      <h3>수면</h3>
+      <p class="note">회복과 근성장을 위해 하루 7~9시간 수면을 확보하세요. 특히 상체 B(목) 다음날은 수면이 부족하면 회복이 늦어집니다.</p>
+    </div>
+    <div class="card">
+      <h3>식단 원칙</h3>
+      <p class="note">근육질 + 슬림한 허리가 목표라면 무작정 많이 먹기보다, 위 단백질 목표를 채우면서 전체 칼로리는 체중 변화를 보며 소폭 조정하는 방식이 안전합니다.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const DAYS = ['일','월','화','수','목','금','토'];
+
+  const PLAN = {
+    1: { // 월
+      label:'상체 A', stars:'⭐', type:'workout',
+      exercises:[
+        {id:'mon_bench', name:'벤치프레스', sets:4, reps:'6~10'},
+        {id:'mon_latpull', name:'랫풀다운', sets:4, reps:'8~12'},
+        {id:'mon_incline_db', name:'인클라인 덤벨프레스', sets:3, reps:'8~12'},
+        {id:'mon_seatedrow', name:'시티드 로우', sets:3, reps:'8~12'},
+        {id:'mon_shoulderpress', name:'숄더프레스', sets:3, reps:'8~12'},
+        {id:'mon_lateral', name:'레터럴레이즈', sets:3, reps:'12~20'},
+      ],
+      cardio:'가볍게 5km'
+    },
+    2:{ // 화
+      label:'하체 A', stars:'', type:'workout',
+      exercises:[
+        {id:'tue_squat', name:'스쿼트', sets:4, reps:'6~10'},
+        {id:'tue_legpress', name:'레그프레스', sets:3, reps:'8~12'},
+        {id:'tue_rdl', name:'루마니안 데드리프트', sets:3, reps:'8~12'},
+        {id:'tue_legcurl', name:'레그컬', sets:3, reps:'10~15'},
+        {id:'tue_calf', name:'카프레이즈', sets:3, reps:'10~15'},
+      ],
+      cardio:''
+    },
+    3:{ // 수
+      label:'회복', stars:'', type:'rest',
+      note:'5km 아주 편하게, 또는 몸이 피곤하면 30~40분 걷기.\n\n여기는 운동 욕심 내면 안 됩니다.'
+    },
+    4:{ // 목
+      label:'상체 B', stars:'⭐⭐⭐', type:'workout',
+      exercises:[
+        {id:'thu_pullup', name:'풀업 / 랫풀다운', sets:4, reps:'8~12'},
+        {id:'thu_row', name:'바벨/케이블 로우', sets:4, reps:'8~12'},
+        {id:'thu_incline', name:'인클라인 프레스', sets:3, reps:'8~12'},
+        {id:'thu_lateral', name:'레터럴레이즈', sets:4, reps:'12~20'},
+        {id:'thu_reardelt', name:'리어델트 플라이', sets:3, reps:'12~20'},
+        {id:'thu_curl', name:'바벨/덤벨 컬', sets:3, reps:'8~12'},
+        {id:'thu_pushdown', name:'케이블 푸시다운', sets:3, reps:'10~15'},
+      ],
+      cardio:'', focusNote:'측면 어깨 + 광배 + 삼두에 특히 집중 — 이 세 부분이 커지면 옷 입은 체형이 확 달라집니다.'
+    },
+    5:{ // 금
+      label:'하체 B + 코어', stars:'', type:'workout',
+      exercises:[
+        {id:'fri_legpress', name:'레그프레스', sets:4, reps:'8~12'},
+        {id:'fri_rdl', name:'루마니안 데드리프트', sets:3, reps:'8~12'},
+        {id:'fri_lunge', name:'런지', sets:3, reps:'10~12'},
+        {id:'fri_legcurl', name:'레그컬', sets:3, reps:'10~15'},
+        {id:'fri_plank', name:'플랭크', sets:3, reps:'최대한 버티기'},
+        {id:'fri_hanginglegraise', name:'행잉 레그레이즈', sets:3, reps:'최대한'},
+      ],
+      cardio:''
+    },
+    6:{ // 토
+      label:'가벼운 유산소', stars:'', type:'rest',
+      note:'5km 편하게 뛰고 휴식.'
+    },
+    0:{ // 일
+      label:'완전 휴식', stars:'', type:'rest',
+      note:'완전 휴식일입니다. 몸을 회복시키세요.'
+    }
+  };
+
+  const MONTHS = [
+    '기초 다지기 — 정확한 자세와 중량 감각 익히기',
+    '기초 다지기 — 모든 종목 목표 세트 규칙적으로 채우기',
+    '기초 다지기 마무리 — 첫 3개월 대비 주요 종목 중량 확인',
+    '근력 상승 — 벤치/스쿼트/로우 중량 본격적으로 밀어붙이기',
+    '근력 상승 — 상체 B(어깨·광배·삼두) 비중 유지',
+    '근력 상승 마무리 — 6개월 전신 사진/중량 기록 비교',
+    '체형 변화 본격화 — 어깨 측면·상부가슴 디테일 다듬기',
+    '체형 변화 본격화 — 정체기 오면 세트/반복 수 소폭 조정',
+    '체형 변화 지속 — 9개월 중간 점검, 단백질/수면 재점검',
+    '완성 다듬기 — 약점 부위 보조운동 추가',
+    '완성 다듬기 — 전반적 밸런스 점검',
+    '1년 결산 — 시작 대비 사진·중량·체중 비교, 다음 목표 설정',
+  ];
+
+  async function storageGet(key){
+    try{
+      return localStorage.getItem(key);
+    }catch(e){ return null; }
+  }
+  async function storageSet(key, value){
+    try{ localStorage.setItem(key, value); }catch(e){}
+  }
+
+  let logs = {};       // { exerciseId: { history:[{date, sets:[{w,r}]}] } }
+  let appState = { bodyweight:null, startDate:null };
+
+  let selectedDay = new Date().getDay();
+  const today = new Date().getDay();
+
+  function fmtDate(d){
+    return d.toISOString().slice(0,10);
+  }
+
+  function renderDayRow(){
+    const row = document.getElementById('dayRow');
+    row.innerHTML = '';
+    for(let i=1;i<=6;i++) addDayChip(row,i);
+    addDayChip(row,0);
+  }
+  function addDayChip(row,i){
+    const chip = document.createElement('div');
+    chip.className = 'day-chip' + (i===today?' today':'') + (i===selectedDay?' selected':'');
+    chip.textContent = DAYS[i];
+    chip.onclick = ()=>{ selectedDay=i; renderDayRow(); renderDay(); };
+    row.appendChild(chip);
+  }
+
+  function lastSessionText(ex){
+    const h = logs[ex.id] && logs[ex.id].history;
+    if(!h || h.length===0) return '지난 기록 없음';
+    const last = h[h.length-1];
+    const setsTxt = last.sets.map(s=> (s.w&&s.r)? `${s.w}kg×${s.r}`:'—').join('  ');
+    return `지난 기록 (${last.date}): ${setsTxt}`;
+  }
+
+  function renderDay(){
+    const plan = PLAN[selectedDay];
+    document.getElementById('dayTitle').textContent = plan.label;
+    document.getElementById('dayStars').textContent = plan.stars||'';
+    const content = document.getElementById('dayContent');
+    content.innerHTML='';
+
+    if(plan.type==='rest'){
+      const div = document.createElement('div');
+      div.className='rest-note';
+      div.textContent = plan.note;
+      content.appendChild(div);
+      return;
+    }
+
+    if(plan.focusNote){
+      const fn = document.createElement('div');
+      fn.className='rest-note';
+      fn.style.marginBottom='12px';
+      fn.style.fontSize='13px';
+      fn.textContent = plan.focusNote;
+      content.appendChild(fn);
+    }
+
+    plan.exercises.forEach(ex=>{
+      const card = document.createElement('div');
+      card.className='ex-card';
+
+      const top = document.createElement('div');
+      top.className='ex-top';
+      top.innerHTML = `<span class="ex-name">${ex.name}</span><span class="ex-target">${ex.sets}×${ex.reps}</span>`;
+      card.appendChild(top);
+
+      const lt = document.createElement('div');
+      lt.className='last-time';
+      lt.textContent = lastSessionText(ex);
+      card.appendChild(lt);
+
+      const grid = document.createElement('div');
+      grid.className='sets-grid';
+      const inputs = [];
+      for(let s=0;s<ex.sets;s++){
+        const row = document.createElement('div');
+        row.className='set-row';
+        const wIn = document.createElement('input');
+        wIn.type='number'; wIn.placeholder='kg'; wIn.inputMode='decimal';
+        const rIn = document.createElement('input');
+        rIn.type='number'; rIn.placeholder='reps'; rIn.inputMode='numeric';
+        row.innerHTML = `<span class="set-idx">${s+1}</span>`;
+        row.appendChild(wIn);
+        row.innerHTML += '';
+        const xSpan = document.createElement('span');
+        xSpan.className='x'; xSpan.textContent='×';
+        row.appendChild(xSpan);
+        row.appendChild(rIn);
+        grid.appendChild(row);
+        inputs.push({wIn,rIn});
+      }
+      card.appendChild(grid);
+
+      const actions = document.createElement('div');
+      actions.className='ex-actions';
+      const btn = document.createElement('button');
+      btn.className='save-btn';
+      btn.textContent='기록 저장';
+      const fb = document.createElement('div');
+      fb.className='feedback';
+      actions.appendChild(btn);
+      actions.appendChild(fb);
+      card.appendChild(actions);
+
+      btn.onclick = async ()=>{
+        const sets = inputs.map(p=>({w:parseFloat(p.wIn.value)||null, r:parseInt(p.rIn.value)||null}))
+          .filter(s=>s.w||s.r);
+        if(sets.length===0){ fb.textContent='입력된 세트가 없습니다.'; fb.className='feedback warn'; return; }
+        if(!logs[ex.id]) logs[ex.id] = {history:[]};
+        const prevHistory = logs[ex.id].history;
+        const prevLast = prevHistory[prevHistory.length-1];
+        logs[ex.id].history.push({date: fmtDate(new Date()), sets});
+        await storageSet('workout-logs', JSON.stringify(logs), false);
+
+        // simple progressive overload feedback
+        if(prevLast){
+          const prevVol = prevLast.sets.reduce((a,s)=>a+((s.w||0)*(s.r||0)),0);
+          const newVol = sets.reduce((a,s)=>a+((s.w||0)*(s.r||0)),0);
+          if(newVol > prevVol){ fb.textContent='🔺 저번보다 전진했습니다'; fb.className='feedback'; }
+          else if(newVol === prevVol){ fb.textContent='동일 — 다음엔 반복 수나 무게를 올려보세요'; fb.className='feedback warn'; }
+          else { fb.textContent='저장됨 — 다음엔 조금 더 밀어붙여 보세요'; fb.className='feedback warn'; }
+        } else {
+          fb.textContent='첫 기록 저장 완료'; fb.className='feedback';
+        }
+        lt.textContent = lastSessionText(ex);
+      };
+
+      content.appendChild(card);
+    });
+
+    if(plan.cardio){
+      const c = document.createElement('div');
+      c.className='rest-note';
+      c.style.fontSize='13px';
+      c.textContent = '유산소: ' + plan.cardio;
+      content.appendChild(c);
+    }
+  }
+
+  // ROADMAP
+  function renderRoadmap(){
+    const strip = document.getElementById('monthStrip');
+    strip.innerHTML='';
+    let currentMonthIdx = -1;
+    if(appState.startDate){
+      const start = new Date(appState.startDate);
+      const now = new Date();
+      const diffDays = Math.floor((now-start)/(1000*60*60*24));
+      currentMonthIdx = Math.min(11, Math.floor(diffDays/30));
+      document.getElementById('progressLine').textContent = 'D+' + Math.max(0,diffDays);
+      const weeks = Math.floor(Math.max(0,diffDays)/7);
+      const pct = Math.min(100, Math.round((diffDays/365)*100));
+      document.getElementById('progressFill').style.width = pct+'%';
+      document.getElementById('progressSub').textContent = `${weeks}주차 진행 중 · 12개월 목표 대비 ${pct}%`;
+    } else {
+      document.getElementById('progressLine').textContent = '시작일을 설정하세요';
+      document.getElementById('progressFill').style.width='0%';
+      document.getElementById('progressSub').textContent = '';
+    }
+    MONTHS.forEach((desc,i)=>{
+      const item = document.createElement('div');
+      item.className='month-item' + (i===currentMonthIdx?' current':'');
+      item.innerHTML = `<span class="month-num">${i+1}개월</span><span class="month-desc">${desc}</span>`;
+      strip.appendChild(item);
+    });
+  }
+
+  // NUTRITION
+  function renderNutrition(){
+    const input = document.getElementById('bodyweightInput');
+    input.value = appState.bodyweight || '';
+    updateProtein();
+  }
+  function updateProtein(){
+    const w = appState.bodyweight;
+    const result = document.getElementById('proteinResult');
+    if(!w){ result.textContent='체중을 입력하세요'; return; }
+    const lo = Math.round(w*1.6);
+    const hi = Math.round(w*2.0);
+    result.textContent = `${lo}~${hi}g`;
+  }
+
+  // TABS
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.onclick = ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    };
+  });
+
+  document.getElementById('bodyweightInput').addEventListener('input', async (e)=>{
+    appState.bodyweight = parseFloat(e.target.value)||null;
+    await storageSet('app-state', JSON.stringify(appState), false);
+    updateProtein();
+  });
+
+  document.getElementById('startDateInput').addEventListener('change', async (e)=>{
+    appState.startDate = e.target.value || null;
+    await storageSet('app-state', JSON.stringify(appState), false);
+    renderRoadmap();
+  });
+
+  async function init(){
+    const rawLogs = await storageGet('workout-logs', false);
+    if(rawLogs){ try{ logs = JSON.parse(rawLogs); }catch(e){ logs={}; } }
+
+    const rawState = await storageGet('app-state', false);
+    if(rawState){
+      try{ appState = JSON.parse(rawState); }catch(e){}
+    }
+    if(!appState.startDate){
+      appState.startDate = fmtDate(new Date());
+      await storageSet('app-state', JSON.stringify(appState), false);
+    }
+    document.getElementById('startDateInput').value = appState.startDate;
+
+    renderDayRow();
+    renderDay();
+    renderRoadmap();
+    renderNutrition();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
